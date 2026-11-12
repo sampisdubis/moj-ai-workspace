@@ -1,0 +1,13 @@
+{
+  "name": "moj-ai-workspace",
+  "image": "mcr.microsoft.com/vscode/devcontainers/universal:latest",
+  "remoteUser": "codespace",
+  "postStartCommand": "bash ${containerWorkspaceFolder}/.devcontainer/start-opencode-web.sh",
+  "forwardPorts": [4096],
+  "portsAttributes": {
+    "4096": {
+      "label": "opencode web",
+      "onAutoForward": "notify"
+    }
+  }
+}

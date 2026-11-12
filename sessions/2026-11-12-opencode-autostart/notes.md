@@ -9,13 +9,20 @@ Codespace-a, bez rucnog kucanja.
 
 ## Resenje (primenjeno)
 
-Idempotentna skripta + hook u shell profilima. Skripta proverava da li port
-vec slusa; ako da, ne radi nista. Koristi `flock` da spreci dupliranje kad se
-otvori vise terminala istovremeno.
+Idempotentna skripta + dva okidaca:
+
+1. `postStartCommand` u `.devcontainer/devcontainer.json` — pokrece se na svaki
+   container start (i za buduce Codespace-ove).
+2. Hook u `~/.bashrc` / `~/.zshrc` — pokrece se kad se otvori shell.
+
+Skripta proverava da li port vec slusa; ako da, ne radi nista. Koristi `flock`
+da spreci dupliranje kad se otvori vise terminala istovremeno.
 
 ### Fajlovi
 
-- `~/.local/bin/start-opencode-web.sh` — launcher (kopija u ovom folderu)
+- `.devcontainer/devcontainer.json` — image + `postStartCommand` + forward port 4096
+- `.devcontainer/start-opencode-web.sh` — kanonska (verzionisana) launcher skripta
+- `~/.local/bin/start-opencode-web.sh` — kopija za hook u ovom Codespace-u
 - `~/.bashrc` — poziva launcher na startu interaktivnog shell-a
 - `~/.zshrc` — isto za zsh
 
@@ -35,21 +42,20 @@ Skripta:
 
 ## Provera
 
-- `bash -n ~/.local/bin/start-opencode-web.sh` — sintaksa OK
+- `bash -n .devcontainer/start-opencode-web.sh` — sintaksa OK
+- `python3 -m json.tool .devcontainer/devcontainer.json` — JSON OK
 - Test na portu 4097: server se podigao (log potvrdio `http://localhost:4097`)
 - Ponovni poziv dok je 4096 zauzet: izlazi za ~0.3s, bez duplikata
 
 ## Vazno / ogranicenja
 
-- Hook se pokrece kad se otvori shell (Codespace obicno otvori/obnovi terminal).
-- `~` (home) prezivljava stop/start istog Codespace-a, ali ne i brisanje.
-- Za garanciju na svaki container start i za sve buduce Codespace-ove:
-  `.devcontainer/devcontainer.json` sa `postStartCommand`. Zahteva rebuild
-  container-a, pa nije automatski primenjeno (rizik promene image-a).
+- `.devcontainer` se primenjuje tek posle **rebuild** container-a; za to je
+  potreban rebuild iz Codespaces menija.
+- U novim Codespace-ovima `opencode` binarni fajl mora biti instaliran
+  (`~/.opencode/bin/opencode`); skripta se tiho preskace ako ga nema.
+- Home prezivljava stop/start istog Codespace-a, ali ne i brisanje.
 
 ## Sledeci koraci (opciono)
 
-- Dodati `.devcontainer/devcontainer.json` (image
-  `mcr.microsoft.com/vscode/devcontainers/universal:latest`, `postStartCommand`)
-  i rebuild.
-- Ili dotfiles repo za univerzalno podesavanje po korisniku.
+- Rebuild container-a da se aktivira `postStartCommand`.
+- Dotfiles repo za univerzalno podesavanje po korisniku.
