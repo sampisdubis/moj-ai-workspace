@@ -1,0 +1,13 @@
+# Tajne — nikad u repozitorijum
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.npmrc
+
+# Lokalno / generisano
+node_modules/
+.DS_Store
+*.log
